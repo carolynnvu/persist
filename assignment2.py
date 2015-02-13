@@ -17,25 +17,18 @@ headers.append("Original Value")
 
 body = table.find("tbody")
 newRecordsInFile = []
+newRecordsInFile.append("\t".join(headers))
 
 ## Helper methods ##
-def calculateOriginalValue(value, change, percentChange):
-    value = float(value)
-    change = float(value)
-    percentChange = float(value)
-    if(percentChange[0] == '-'):
-        return value + (change / percentChange)
-    return value - (change / percentChange)
+def calculateOriginalValue(value, change):
+    valNum = float(value)
+    chgNum = float(change)
+    return valNum - chgNum
 
-def sanitize(index, string):
-    result = ""
+def sanitize(string):
     if(string[0] == '+'):
-        result = string[1:]
-
-    if(index == 2):
-        return result
-    else:
-        return result[:len(string)-1]
+        return string[1:]
+    return string
 ###
 
 for row in body.find_all("tr"):
@@ -43,17 +36,14 @@ for row in body.find_all("tr"):
     data = row.find_all("td")
     value = ""
     change = ""
-    percentChange = ""
     for d in range(len(data)):
-        newEntriesInRecord.append(data[d])
+        newEntriesInRecord.append(data[d].text)
         if(d == 1):
-            value = data[d]
+            value = data[d].text
         elif(d == 2):
-            change = sanitize(2, data[d])
-        elif(d == 3):
-            percentChange = sanitize(3, data[d])
+            change = sanitize(data[d].text)
 
-    originalValue = calculateOriginalValue(value, change, percentChange)
+    originalValue = str(calculateOriginalValue(value.replace(',',''), change.replace(',','')))
     newEntriesInRecord.append(originalValue)
     newEntriesInRecord = "\t".join(newEntriesInRecord)
     newRecordsInFile.append(newEntriesInRecord)
